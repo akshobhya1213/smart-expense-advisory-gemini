@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { @apply text-ink-900 antialiased; }
+
+.card {
+  @apply bg-white rounded-xl border border-gray-100 shadow-card;
+}
+
+.btn-primary {
+  @apply bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg px-4 py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-white border border-gray-200 hover:bg-gray-50 text-ink-800 font-medium rounded-lg px-4 py-2 transition-colors;
+}
+
+.input {
+  @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500;
+}
+
+.skeleton {
+  @apply animate-pulse bg-gray-100 rounded;
+}
