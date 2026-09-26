@@ -8,8 +8,8 @@ import { Plus, PiggyBank, BarChart3, Sparkles } from 'lucide-react'
 
 const COLORS = ['#4F7CFF', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16']
 
-function formatCurrency(n: number) {
-  return `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+function formatCurrency(n: number | null | undefined) {
+  return `₹${(n ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
 export default function Dashboard() {

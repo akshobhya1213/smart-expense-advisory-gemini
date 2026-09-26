@@ -4,8 +4,8 @@ import { Budget, Category } from '../types'
 import { EmptyState, PageHeader } from '../components/Common'
 import { Plus, Trash2, X } from 'lucide-react'
 
-function formatCurrency(n: number) {
-  return `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+function formatCurrency(n: number | null | undefined) {
+  return `₹${(n ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
 export default function Budgets() {

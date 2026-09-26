@@ -6,8 +6,8 @@ import { Plus, Pencil, Trash2, Download, X } from 'lucide-react'
 
 const PAYMENT_METHODS: PaymentMethod[] = ['CASH', 'CARD', 'UPI', 'NET_BANKING', 'WALLET', 'OTHER']
 
-function formatCurrency(n: number) {
-  return `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+function formatCurrency(n: number | null | undefined) {
+  return `₹${(n ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
 export default function Expenses() {

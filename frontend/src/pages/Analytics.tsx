@@ -4,8 +4,8 @@ import { api } from '../api/client'
 import { MonthlySummary, CategoryBreakdown, BudgetAnalytics } from '../types'
 import { StatCard, CardSkeletonGrid, ErrorState, PageHeader } from '../components/Common'
 
-function formatCurrency(n: number) {
-  return `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+function formatCurrency(n: number | null | undefined) {
+  return `₹${(n ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
 export default function Analytics() {
