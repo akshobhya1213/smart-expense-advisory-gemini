@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -28,11 +27,16 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (categoryRepository.count() == 0) {
-            List<Category> defaults = DEFAULT_CATEGORIES.entrySet().stream()
-                    .map(e -> Category.builder().name(e.getKey()).icon(e.getValue()).isDefault(true).build())
-                    .toList();
-            categoryRepository.saveAll(defaults);
-        }
+        // Seed any missing default category, not only when the table is completely empty.
+        // This also repairs an existing deployment where the category table was partially seeded.
+        DEFAULT_CATEGORIES.forEach((name, icon) -> {
+            if (!categoryRepository.existsByName(name)) {
+                categoryRepository.save(Category.builder()
+                        .name(name)
+                        .icon(icon)
+                        .isDefault(true)
+                        .build());
+            }
+        });
     }
 }
