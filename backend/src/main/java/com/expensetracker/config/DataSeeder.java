@@ -28,9 +28,9 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Seed any missing default category, not only when the table is completely empty.
-        // This also repairs an existing deployment where the category table was partially seeded.
+        // This repairs an existing deployment where the category table was partially seeded.
         DEFAULT_CATEGORIES.forEach((name, icon) -> {
-            if (!categoryRepository.existsByName(name)) {
+            if (categoryRepository.findByNameIgnoreCase(name).isEmpty()) {
                 categoryRepository.save(Category.builder()
                         .name(name)
                         .icon(icon)
