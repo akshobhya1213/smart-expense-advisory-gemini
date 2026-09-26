@@ -21,8 +21,12 @@ export default function Expenses() {
   const [editing, setEditing] = useState<Expense | null>(null)
 
   async function loadCategories() {
-    const { data } = await api.get<Category[]>('/categories')
-    setCategories(data)
+    try {
+      const { data } = await api.get<Category[]>('/categories')
+      setCategories(Array.isArray(data) ? data : [])
+    } catch {
+      setCategories([])
+    }
   }
 
   async function loadExpenses() {
@@ -77,7 +81,10 @@ export default function Expenses() {
             <button className="btn-secondary flex items-center gap-1.5 text-sm" onClick={exportCsv}>
               <Download size={16} /> Export CSV
             </button>
-            <button className="btn-primary flex items-center gap-1.5 text-sm" onClick={() => { setEditing(null); setModalOpen(true) }}>
+            <button
+              className="btn-primary flex items-center gap-1.5 text-sm"
+              onClick={() => { setEditing(null); setModalOpen(true) }}
+            >
               <Plus size={16} /> Add Expense
             </button>
           </div>
@@ -172,8 +179,23 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    if (!expense && form.categoryId <= 0 && categories.length > 0) {
+      setForm(prev => ({ ...prev, categoryId: categories[0].id }))
+    }
+  }, [categories, expense, form.categoryId])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!Number.isFinite(form.amount) || form.amount <= 0) {
+      setError('Please enter a valid amount.')
+      return
+    }
+    if (!Number.isInteger(form.categoryId) || form.categoryId <= 0) {
+      setError('Please select a category.')
+      return
+    }
+
     setSaving(true)
     setError('')
     try {
@@ -189,6 +211,8 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
       setSaving(false)
     }
   }
+
+  const noCategories = categories.length === 0 && !expense
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-4">
@@ -217,7 +241,8 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium mb-1 block">Category</label>
-              <select className="input" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: parseInt(e.target.value) })}>
+              <select className="input" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: Number(e.target.value) })} disabled={noCategories}>
+                {noCategories && <option value={0}>No categories available</option>}
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
@@ -232,8 +257,8 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
             <label className="text-sm font-medium mb-1 block">Notes (optional)</label>
             <textarea className="input" rows={2} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
           </div>
-          <button className="btn-primary w-full" disabled={saving}>
-            {saving ? 'Saving…' : expense ? 'Save Changes' : 'Add Expense'}
+          <button className="btn-primary w-full" disabled={saving || noCategories}>
+            {saving ? 'Saving…' : noCategories ? 'Waiting for categories…' : expense ? 'Save Changes' : 'Add Expense'}
           </button>
         </form>
       </div>
