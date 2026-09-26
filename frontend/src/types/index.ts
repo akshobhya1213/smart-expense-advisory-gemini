@@ -28,7 +28,7 @@ export interface Expense {
 export interface ExpenseRequest {
   amount: number
   description: string
-  categoryId: number
+  categoryId?: number
   date: string
   paymentMethod: PaymentMethod
   notes?: string
