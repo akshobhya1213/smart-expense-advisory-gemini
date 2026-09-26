@@ -75,11 +75,11 @@ export default function Budgets() {
               <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-3">
                 <div
                   className={`h-full rounded-full ${b.status === 'EXCEEDED' ? 'bg-red-500' : b.status === 'APPROACHING' ? 'bg-amber-500' : 'bg-brand-500'}`}
-                  style={{ width: `${Math.min(100, b.utilizationPercent)}%` }}
+                  style={{ width: `${Math.min(100, b.utilizationPercent ?? 0)}%` }}
                 />
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                {b.utilizationPercent.toFixed(1)}% utilized · {formatCurrency(Math.max(0, b.remaining))} remaining
+                {(b.utilizationPercent ?? 0).toFixed(1)}% utilized · {formatCurrency(Math.max(0, b.remaining ?? 0))} remaining
               </p>
             </div>
           ))}

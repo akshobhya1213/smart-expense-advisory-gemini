@@ -80,9 +80,9 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Spending" value={formatCurrency(summary?.totalExpenses ?? 0)}
-          sub={`${summary && summary.changePercent >= 0 ? '+' : ''}${summary?.changePercent.toFixed(1)}% vs last month`}
+          sub={`${(summary?.changePercent ?? 0) >= 0 ? '+' : ''}${(summary?.changePercent ?? 0).toFixed(1)}% vs last month`}
           trend={summary && summary.changePercent >= 0 ? 'up' : 'down'} />
-        <StatCard label="Monthly Budget" value={formatCurrency(totalBudget)} sub={`${overallUtil.toFixed(0)}% utilized`} />
+        <StatCard label="Monthly Budget" value={formatCurrency(totalBudget)} sub={`${(overallUtil ?? 0).toFixed(0)}% utilized`} />
         <StatCard label="Transactions" value={String(summary?.transactionCount ?? 0)} />
         <StatCard label="Net Balance" value={formatCurrency(netBalance)} sub="This month" />
       </div>
@@ -112,7 +112,7 @@ export default function Dashboard() {
                       <span className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
                       {c.categoryName}
                     </div>
-                    <div className="text-gray-500">{formatCurrency(c.totalAmount)} · {c.percentage.toFixed(0)}%</div>
+                    <div className="text-gray-500">{formatCurrency(c.totalAmount)} · {(c.percentage ?? 0).toFixed(0)}%</div>
                   </div>
                 ))}
               </div>
@@ -135,11 +135,11 @@ export default function Dashboard() {
                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full ${b.status === 'EXCEEDED' ? 'bg-red-500' : b.status === 'APPROACHING' ? 'bg-amber-500' : 'bg-brand-500'}`}
-                    style={{ width: `${Math.min(100, b.utilizationPercent)}%` }}
+                    style={{ width: `${Math.min(100, b.utilizationPercent ?? 0)}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1">
-                  {b.utilizationPercent.toFixed(0)}% · {formatCurrency(Math.max(0, b.remaining))} remaining
+                  {(b.utilizationPercent ?? 0).toFixed(0)}% · {formatCurrency(Math.max(0, b.remaining ?? 0))} remaining
                 </p>
               </div>
             ))}
