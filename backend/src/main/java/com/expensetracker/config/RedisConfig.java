@@ -13,8 +13,17 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    @Bean
-    public ObjectMapper redisObjectMapper() {
+    /**
+     * IMPORTANT: this ObjectMapper is built as a plain local object, NOT exposed as a
+     * Spring @Bean. Registering it as a bean would make Spring Boot's Jackson
+     * autoconfiguration adopt it as the application's *global* HTTP message-converter
+     * ObjectMapper (since Spring Boot only creates its own default ObjectMapper bean
+     * when none already exists in the context). That previously broke every plain
+     * REST request/response in the app, because activateDefaultTyping() requires every
+     * value to be wrapped as ["ClassName", value] — which a normal JSON client never
+     * sends. Keeping it fully private to this Redis config avoids that entirely.
+     */
+    private ObjectMapper buildRedisObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -24,7 +33,9 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory, ObjectMapper redisObjectMapper) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        ObjectMapper redisObjectMapper = buildRedisObjectMapper();
+
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         template.setKeySerializer(new StringRedisSerializer());
