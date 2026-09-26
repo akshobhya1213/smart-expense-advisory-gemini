@@ -37,7 +37,7 @@ export default function Expenses() {
           sort: 'date,desc',
         },
       })
-      setPage(data)
+      setPage({ ...data, content: data.content ?? [] })
     } finally {
       setLoading(false)
     }
