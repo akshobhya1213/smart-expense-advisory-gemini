@@ -14,7 +14,7 @@ public class ExpenseDtos {
     public record ExpenseRequest(
             @NotNull @Positive BigDecimal amount,
             @NotBlank String description,
-            @NotNull Long categoryId,
+            Long categoryId,
             @NotNull LocalDate date,
             @NotNull Expense.PaymentMethod paymentMethod,
             String notes

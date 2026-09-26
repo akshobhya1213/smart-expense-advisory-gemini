@@ -21,8 +21,12 @@ export default function Expenses() {
   const [editing, setEditing] = useState<Expense | null>(null)
 
   async function loadCategories() {
-    const { data } = await api.get<Category[]>('/categories')
-    setCategories(data)
+    try {
+      const { data } = await api.get<Category[]>('/categories')
+      setCategories(Array.isArray(data) ? data : [])
+    } catch {
+      setCategories([])
+    }
   }
 
   async function loadExpenses() {
@@ -77,7 +81,10 @@ export default function Expenses() {
             <button className="btn-secondary flex items-center gap-1.5 text-sm" onClick={exportCsv}>
               <Download size={16} /> Export CSV
             </button>
-            <button className="btn-primary flex items-center gap-1.5 text-sm" onClick={() => { setEditing(null); setModalOpen(true) }}>
+            <button
+              className="btn-primary flex items-center gap-1.5 text-sm"
+              onClick={() => { setEditing(null); setModalOpen(true) }}
+            >
               <Plus size={16} /> Add Expense
             </button>
           </div>
@@ -164,7 +171,7 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
   const [form, setForm] = useState<ExpenseRequest>({
     amount: expense?.amount ?? 0,
     description: expense?.description ?? '',
-    categoryId: expense?.categoryId ?? categories[0]?.id ?? 0,
+    categoryId: expense?.categoryId,
     date: expense?.date ?? new Date().toISOString().slice(0, 10),
     paymentMethod: expense?.paymentMethod ?? 'CARD',
     notes: expense?.notes ?? '',
@@ -174,6 +181,11 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!Number.isFinite(form.amount) || form.amount <= 0) {
+      setError('Please enter a valid amount.')
+      return
+    }
+
     setSaving(true)
     setError('')
     try {
@@ -216,8 +228,13 @@ function ExpenseModal({ categories, expense, onClose, onSaved }: {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium mb-1 block">Category</label>
-              <select className="input" value={form.categoryId} onChange={e => setForm({ ...form, categoryId: parseInt(e.target.value) })}>
+              <label className="text-sm font-medium mb-1 block">Category <span className="text-gray-400">(optional)</span></label>
+              <select
+                className="input"
+                value={form.categoryId ?? ''}
+                onChange={e => setForm({ ...form, categoryId: e.target.value ? Number(e.target.value) : undefined })}
+              >
+                <option value="">No category — use Miscellaneous</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>

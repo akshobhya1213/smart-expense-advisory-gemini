@@ -18,7 +18,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +30,12 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
     private final AnalyticsCacheService cacheService;
 
     @Transactional
     public ExpenseResponse create(Long userId, com.expensetracker.entity.User user, ExpenseRequest req) {
-        Category category = categoryRepository.findById(req.categoryId())
-                .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Category not found"));
+        Category category = resolveCategory(req.categoryId());
 
         Expense expense = Expense.builder()
                 .amount(req.amount())
@@ -50,10 +49,11 @@ public class ExpenseService {
 
         expense = expenseRepository.save(expense);
         cacheService.evict("analytics:" + userId);
-        log.info("Expense created: id={} userId={}", expense.getId(), userId);
+        log.info("Expense created: id={} userId={} category={}", expense.getId(), userId, category.getName());
         return ExpenseResponse.from(expense);
     }
 
+    @Transactional(readOnly = true)
     public Page<ExpenseResponse> search(Long userId, String search, Long categoryId,
                                          LocalDate startDate, LocalDate endDate,
                                          Expense.PaymentMethod paymentMethod, Pageable pageable) {
@@ -80,8 +80,6 @@ public class ExpenseService {
 
     public ExpenseResponse getById(Long userId, Long id) {
         Expense expense = expenseRepository.findByIdAndUserId(id, userId)
-                // Same 404 whether the expense doesn't exist OR belongs to another user —
-                // this avoids leaking which IDs exist to an attacker probing other users' data.
                 .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Expense not found"));
         return ExpenseResponse.from(expense);
     }
@@ -91,8 +89,7 @@ public class ExpenseService {
         Expense expense = expenseRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Expense not found"));
 
-        Category category = categoryRepository.findById(req.categoryId())
-                .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Category not found"));
+        Category category = resolveCategory(req.categoryId());
 
         expense.setAmount(req.amount());
         expense.setDescription(req.description());
@@ -103,7 +100,7 @@ public class ExpenseService {
 
         expense = expenseRepository.save(expense);
         cacheService.evict("analytics:" + userId);
-        log.info("Expense updated: id={} userId={}", id, userId);
+        log.info("Expense updated: id={} userId={} category={}", id, userId, category.getName());
         return ExpenseResponse.from(expense);
     }
 
@@ -116,4 +113,11 @@ public class ExpenseService {
         log.info("Expense deleted: id={} userId={}", id, userId);
     }
 
+    private Category resolveCategory(Long categoryId) {
+        if (categoryId == null || categoryId <= 0) {
+            return categoryService.getMiscellaneousCategory();
+        }
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Category not found"));
+    }
 }
