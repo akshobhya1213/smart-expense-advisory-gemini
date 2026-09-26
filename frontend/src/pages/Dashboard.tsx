@@ -37,7 +37,7 @@ export default function Dashboard() {
       setSummary(summaryRes.data)
       setBreakdown(breakdownRes.data)
       setBudgets(budgetRes.data)
-      setRecent(expensesRes.data.content)
+      setRecent(expensesRes.data.content ?? [])
     } catch {
       setError(true)
     } finally {
