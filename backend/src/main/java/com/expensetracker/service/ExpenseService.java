@@ -54,6 +54,7 @@ public class ExpenseService {
         return ExpenseResponse.from(expense);
     }
 
+    @Transactional(readOnly = true)
     public Page<ExpenseResponse> search(Long userId, String search, Long categoryId,
                                          LocalDate startDate, LocalDate endDate,
                                          Expense.PaymentMethod paymentMethod, Pageable pageable) {
@@ -80,8 +81,6 @@ public class ExpenseService {
 
     public ExpenseResponse getById(Long userId, Long id) {
         Expense expense = expenseRepository.findByIdAndUserId(id, userId)
-                // Same 404 whether the expense doesn't exist OR belongs to another user —
-                // this avoids leaking which IDs exist to an attacker probing other users' data.
                 .orElseThrow(() -> new ApiExceptions.ResourceNotFoundException("Expense not found"));
         return ExpenseResponse.from(expense);
     }
