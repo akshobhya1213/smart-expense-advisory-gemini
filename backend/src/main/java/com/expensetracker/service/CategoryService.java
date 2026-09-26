@@ -24,7 +24,8 @@ public class CategoryService {
             Map.entry("Entertainment", "film"),
             Map.entry("Healthcare", "heart-pulse"),
             Map.entry("Education", "graduation-cap"),
-            Map.entry("Other", "circle-ellipsis")
+            Map.entry("Other", "circle-ellipsis"),
+            Map.entry("Miscellaneous", "circle-ellipsis")
     );
 
     /**
@@ -39,6 +40,16 @@ public class CategoryService {
         return categoryRepository.findAll().stream()
                 .map(c -> new CategoryResponse(c.getId(), c.getName(), c.getIcon()))
                 .toList();
+    }
+
+    @Transactional
+    public Category getMiscellaneousCategory() {
+        return categoryRepository.findByNameIgnoreCase("Miscellaneous")
+                .orElseGet(() -> categoryRepository.save(Category.builder()
+                        .name("Miscellaneous")
+                        .icon("circle-ellipsis")
+                        .isDefault(true)
+                        .build()));
     }
 
     private void ensureDefaultCategories() {
