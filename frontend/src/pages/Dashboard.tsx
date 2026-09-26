@@ -90,7 +90,7 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="card p-5 lg:col-span-2">
           <h2 className="font-semibold mb-4">Category Breakdown</h2>
-          {breakdown && breakdown.categories.length > 0 ? (
+          {breakdown && breakdown.categories && breakdown.categories.length > 0 ? (
             <div className="flex items-center gap-6 flex-wrap">
               <div className="w-48 h-48">
                 <ResponsiveContainer width="100%" height="100%">

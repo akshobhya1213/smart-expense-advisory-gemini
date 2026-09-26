@@ -35,7 +35,7 @@ export default function Analytics() {
       setSummary(summaryRes.data)
       setBreakdown(breakdownRes.data)
       setBudgetAnalytics(budgetRes.data)
-      setTrend(trendRes.data.points.map((p: any) => ({ date: p.date.slice(5), amount: p.amount })))
+      setTrend((trendRes.data.points ?? []).map((p: any) => ({ date: p.date.slice(5), amount: p.amount })))
     } catch {
       setError(true)
     } finally {
@@ -79,7 +79,7 @@ export default function Analytics() {
         <div className="card p-5">
           <h2 className="font-semibold mb-4">Category Comparison</h2>
           <div className="space-y-3">
-            {breakdown?.categories.map(c => (
+            {breakdown?.categories?.map(c => (
               <div key={c.categoryId}>
                 <div className="flex justify-between text-sm mb-1">
                   <span>{c.categoryName}</span>
@@ -101,7 +101,7 @@ export default function Analytics() {
           <StatCard label="Overall Utilization" value={`${(budgetAnalytics?.overallUtilization ?? 0).toFixed(1)}%`}
             sub={`${formatCurrency(budgetAnalytics?.totalSpent ?? 0)} of ${formatCurrency(budgetAnalytics?.totalBudget ?? 0)}`} />
           <div className="mt-4 space-y-2">
-            {budgetAnalytics?.categoryBudgets.map(b => (
+            {budgetAnalytics?.categoryBudgets?.map(b => (
               <div key={b.id} className="flex justify-between text-sm">
                 <span>{b.categoryName ?? 'Overall'}</span>
                 <span className={`font-medium ${b.status === 'EXCEEDED' ? 'text-red-500' : b.status === 'APPROACHING' ? 'text-amber-500' : 'text-green-600'}`}>
